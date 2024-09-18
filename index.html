@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>To Do List</title>
+        <link
+            href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+            rel="stylesheet"
+            integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+            crossorigin="anonymous"
+        />
+
+        <script
+            src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+            crossorigin="anonymous"
+        ></script>
+
+        <script
+            src="https://kit.fontawesome.com/78063a680d.js"
+            crossorigin="anonymous"
+        ></script>
+    </head>
+
+    <body>
+        <!-- Nav Bar -->
+        <nav class="navbar bg-dark navbar-dark navbar-expand sticky-top">
+            <div class="container" style="max-width: 1000px">
+                <a href="#" class="navbar-brand"
+                    >To Do List
+                    <span class="badge bg-danger ms-2" id="count">0</span>
+                </a>
+
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" id="clear">Clear</a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+
+        <!-- Input + To Do List -->
+        <div class="container" style="max-width: 600px">
+            <div class="input-group mt-5 mb-3">
+                <input type="text" class="form-control" />
+                <button class="btn btn-dark">Add</button>
+            </div>
+            <ul class="list-group" id="todo"></ul>
+            <ul class="list-group opacity-50 mt-4" id="done"></ul>
+        </div>
+
+        <script>
+            // << Local Storgae >>
+            let data = getData();
+            data.map(item => createItem(item.text, item.done));
+            updateCount();
+
+            function getData() {
+                return JSON.parse(localStorage.getItem('data')) || [];
+            }
+
+            function saveData(text) {
+                let data = getData();
+                data.push({ text, done: false });
+                localStorage.setItem('data', JSON.stringify(data));
+            }
+
+            function deleteData(text) {
+                let data = getData();
+                let result = data.filter(item => item.text != text);
+                localStorage.setItem('data', JSON.stringify(result));
+            }
+
+            function checkData(text) {
+                let data = getData();
+                let result = data.map(item => {
+                    if (item.text === text) item.done = true;
+                    return item;
+                });
+                localStorage.setItem('data', JSON.stringify(result));
+            }
+
+            function editData(text, updateText) {
+                let data = getData();
+                let result = data.map(item => {
+                    if (item.text === text) {
+                        item.text = updateText;
+                        return item;
+                    }
+                });
+                localStorage.setItem('data', JSON.stringify(result));
+            }
+
+            function clearData() {
+                let data = getData();
+                let result = data.filter(item => !item.done);
+                localStorage.setItem('data', JSON.stringify(result));
+            }
+            // << Local Storgae >>
+
+            document.querySelector('button').onclick = function () {
+                const text = document.querySelector('input').value;
+                if (text === '') return false;
+
+                createItem(text);
+                updateCount();
+                saveData(text);
+
+                document.querySelector('input').value = '';
+                document.querySelector('input').focus();
+            };
+
+            document.querySelector('input').onkeydown = function (e) {
+                if (e.key === 'Enter')
+                    document.querySelector('button').onclick();
+            };
+
+            document.querySelector('#clear').onclick = function () {
+                document.querySelector('#done').textContent = '';
+                clearData();
+            };
+
+            function createItem(text, done = false) {
+                const li = document.createElement('li');
+                li.classList.add('list-group-item');
+                li.textContent = text;
+                if (!done) document.querySelector('#todo').appendChild(li);
+                else document.querySelector('#done').appendChild(li);
+
+                const del = document.createElement('a');
+                del.setAttribute('href', '#');
+                del.classList.add(
+                    'fas',
+                    'fa-trash',
+                    'float-end',
+                    'text-danger'
+                );
+                del.onclick = function () {
+                    li.remove();
+                    updateCount();
+                    deleteData(text);
+                };
+                li.appendChild(del);
+
+                const check = document.createElement('a');
+                check.setAttribute('href', '#');
+                check.classList.add('fas', 'fa-check', 'float-start', 'me-2');
+                check.onclick = function () {
+                    document.querySelector('#done').appendChild(li);
+                    check.remove();
+                    edit.remove();
+                    updateCount();
+                    checkData(text);
+                };
+                if (!done) li.appendChild(check);
+
+                const edit = document.createElement('a');
+                edit.setAttribute('href', '#');
+                edit.classList.add(
+                    'fas',
+                    'fa-edit',
+                    'text-secondary',
+                    'float-end',
+                    'me-2'
+                );
+                edit.onclick = function () {
+                    const updateText = prompt('Please enter');
+                    li.textContent = updateText;
+                    li.appendChild(del);
+                    li.appendChild(check);
+                    li.appendChild(edit);
+                    editData(text, updateText);
+                };
+                if (!done) li.appendChild(edit);
+            }
+
+            function updateCount() {
+                document.querySelector('#count').textContent =
+                    document.querySelectorAll('#todo li').length;
+            }
+        </script>
+    </body>
+</html>
