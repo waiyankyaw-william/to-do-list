@@ -43,7 +43,3 @@ This To Do List web application allows users to manage their tasks using a simpl
     - When the page loads, tasks are retrieved from local storage and displayed in their respective sections (pending or completed).
 
 The UI includes Bootstrap for styling and FontAwesome for the icons, providing a clean and modern look to the application. This project is part of classs projects to apply the knowledge of Javascript in a real-world scenario.
-
-<br>
-<br>
-Website Link -
