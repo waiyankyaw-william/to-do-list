@@ -165,7 +165,7 @@
                     'me-2'
                 );
                 edit.onclick = function () {
-                    const updateText = prompt('Please enter');
+                    const updateText = prompt('Please enter', text);
                     li.textContent = updateText;
                     li.appendChild(del);
                     li.appendChild(check);
